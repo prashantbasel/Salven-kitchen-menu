@@ -1,0 +1,202 @@
+:root{
+  --navy:#0b1f3a;
+  --navy-deep:#081729;
+  --orange:#e07b2d;
+  --orange-bright:#f39442;
+  --cream:#f4efe6;
+  --line: rgba(244,239,230,0.18);
+  --muted: rgba(244,239,230,0.62);
+}
+*{box-sizing:border-box;}
+body{margin:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--navy);
+  color:var(--cream);
+  font-family:'Archivo',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:60px;
+}
+header.hero{
+  padding:38px 20px 22px;
+  text-align:center;
+  background:
+    radial-gradient(120% 100% at 50% -10%, rgba(224,123,45,0.16), transparent 60%),
+    var(--navy-deep);
+  border-bottom:1px solid var(--line);
+}
+.eyebrow{
+  font-size:12px;
+  letter-spacing:0.32em;
+  color:var(--orange-bright);
+  text-transform:uppercase;
+  font-weight:700;
+  margin-bottom:6px;
+}
+h1.logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:56px;
+  line-height:0.85;
+  letter-spacing:0.02em;
+  margin:0;
+  color:var(--cream);
+}
+.tagline{
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+  letter-spacing:0.05em;
+}
+
+nav.categories{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:12px 16px;
+  background:rgba(8,23,41,0.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+nav.categories::-webkit-scrollbar{display:none;}
+nav.categories a{
+  flex:0 0 auto;
+  text-decoration:none;
+  color:var(--muted);
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  transition:all .2s ease;
+  white-space:nowrap;
+}
+nav.categories a.active{
+  color:var(--navy-deep);
+  background:var(--orange-bright);
+  border-color:var(--orange-bright);
+}
+
+main{max-width:640px;margin:0 auto;padding:0 18px;}
+
+section.category{padding:36px 0 8px;scroll-margin-top:64px;}
+section.category:first-of-type{padding-top:28px;}
+.cat-head{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  margin-bottom:4px;
+}
+.cat-head h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:30px;
+  letter-spacing:0.03em;
+  color:var(--orange-bright);
+  margin:0;
+}
+.cat-note{
+  font-size:12px;
+  color:var(--orange);
+  font-style:italic;
+  margin:0 0 16px;
+}
+hr.rule{
+  border:none;
+  border-top:1px solid var(--line);
+  margin:0 0 18px;
+}
+
+.item{
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+}
+.item:last-child{border-bottom:none;}
+.item-top{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+}
+.item-name{
+  font-weight:700;
+  font-size:15.5px;
+  letter-spacing:0.01em;
+  color:var(--cream);
+}
+.leader{
+  flex:1;
+  border-bottom:1px dotted var(--line);
+  transform:translateY(-4px);
+}
+.price{
+  font-weight:800;
+  font-size:15px;
+  color:var(--orange-bright);
+  white-space:nowrap;
+}
+.desc{
+  margin-top:4px;
+  font-size:12.8px;
+  line-height:1.5;
+  color:var(--muted);
+}
+.addon{
+  margin-top:4px;
+  font-size:12px;
+  color:var(--orange);
+}
+
+.hero-photo{
+  display:block;
+  width:100%;
+  max-height:220px;
+  object-fit:cover;
+  border-bottom:1px solid var(--line);
+}
+.gallery{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-bottom:18px;
+}
+.gallery.two{grid-template-columns:repeat(2,1fr);}
+.gallery img{
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid var(--line);
+}
+.feature-photo{
+  width:100%;
+  height:160px;
+  object-fit:cover;
+  border-radius:10px;
+  border:1px solid var(--line);
+  margin-bottom:18px;
+  display:block;
+}
+
+footer{
+  max-width:640px;
+  margin:30px auto 0;
+  padding:22px 18px;
+  border-top:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+footer a{color:var(--cream);text-decoration:none;}
+footer .row{display:flex;align-items:center;gap:10px;}
+footer .dot{color:var(--orange);}
+
+@media (min-width:640px){
+  h1.logo{font-size:68px;}
+}
