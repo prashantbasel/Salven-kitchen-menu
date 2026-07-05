@@ -87,7 +87,7 @@
 <script>
   const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const CATEGORY_LABELS = {
     appetizers: "Shareable / Appetizers",
@@ -99,7 +99,7 @@
   const CATEGORY_ORDER = ["appetizers", "handhelds", "flatbread", "salads", "sweet"];
 
   async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     if (session) {
       document.getElementById("loginCard").classList.add("hidden");
       document.getElementById("adminPanel").classList.remove("hidden");
@@ -113,7 +113,7 @@
     const errBox = document.getElementById("loginError");
     errBox.classList.add("hidden");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
       errBox.textContent = error.message;
       errBox.classList.remove("hidden");
@@ -123,12 +123,12 @@
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     location.reload();
   }
 
   async function loadItems() {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("menu_items")
       .select("*")
       .order("category")
@@ -185,7 +185,7 @@
     const price = parseFloat(document.getElementById(`price-${id}`).value);
     const addon_note = document.getElementById(`addon-${id}`).value.trim() || null;
 
-    const { error } = await supabase
+    const { error } = await sb
       .from("menu_items")
       .update({ name, description, price, addon_note })
       .eq("id", id);
@@ -199,7 +199,7 @@
 
   async function deleteItem(id) {
     if (!confirm("Delete this item? This can't be undone.")) return;
-    const { error } = await supabase.from("menu_items").delete().eq("id", id);
+    const { error } = await sb.from("menu_items").delete().eq("id", id);
     if (error) {
       alert("Error deleting: " + error.message);
     } else {
@@ -219,7 +219,7 @@
       return;
     }
 
-    const { error } = await supabase
+    const { error } = await sb
       .from("menu_items")
       .insert([{ category, name, description, price, addon_note, sort_order: 999 }]);
 

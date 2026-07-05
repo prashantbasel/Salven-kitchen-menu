@@ -3,85 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salven Kitchen — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --navy:#0b1f3a; --navy-deep:#081729; --orange:#e07b2d; --orange-bright:#f39442;
-    --cream:#f4efe6; --line: rgba(244,239,230,0.18); --muted: rgba(244,239,230,0.62);
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--navy);color:var(--cream);font-family:'Archivo',sans-serif;padding:24px 16px 80px;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:24px;}
-  .card{max-width:480px;margin:60px auto;background:var(--navy-deep);border:1px solid var(--line);border-radius:12px;padding:28px;}
-  input, select, textarea{
-    width:100%;padding:9px 10px;margin-bottom:10px;border-radius:6px;border:1px solid var(--line);
-    background:var(--navy);color:var(--cream);font-family:inherit;font-size:14px;
-  }
-  textarea{resize:vertical;min-height:50px;}
-  button{
-    background:var(--orange-bright);color:var(--navy-deep);border:none;border-radius:6px;
-    padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px;
-  }
-  button.secondary{background:transparent;color:var(--cream);border:1px solid var(--line);}
-  button.danger{background:#c0392b;color:white;}
-  .error{color:#ff8a80;font-size:13px;margin-bottom:10px;}
-  table{width:100%;border-collapse:collapse;margin-top:10px;}
-  th, td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top;}
-  th{color:var(--orange-bright);text-transform:uppercase;font-size:11px;letter-spacing:0.04em;}
-  .actions{display:flex;gap:6px;flex-wrap:wrap;}
-  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-  .add-form{background:var(--navy-deep);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:24px;}
-  .add-form h3{margin-top:0;font-size:15px;color:var(--orange-bright);}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .hidden{display:none;}
-  .cat-section{margin-bottom:32px;}
-  .cat-section h2{font-size:16px;color:var(--orange-bright);margin-bottom:6px;}
-</style>
+<title>The Salven Kitchen — Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="loginCard" class="card">
-  <h1>Salven Kitchen Admin</h1>
-  <p class="sub">Sign in to manage your menu</p>
-  <div id="loginError" class="error hidden"></div>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Log in</button>
-</div>
+<header class="hero">
+  <div class="eyebrow">The Salven</div>
+  <h1 class="logo">KITCHEN</h1>
+  <div class="tagline">Roanoke, TX · Scratch kitchen, shareable plates</div>
+</header>
 
-<div id="adminPanel" class="hidden">
-  <div class="top-bar">
-    <div>
-      <h1>Menu Admin</h1>
-      <p class="sub">Changes appear on the live site instantly</p>
-    </div>
-    <button class="secondary" onclick="logout()">Log out</button>
-  </div>
+<nav class="categories" id="catNav">
+  <a href="#appetizers">Appetizers</a>
+  <a href="#handhelds">Handhelds</a>
+  <a href="#flatbread">Flatbread</a>
+  <a href="#salads">Salads</a>
+  <a href="#sweet">Sweet</a>
+</nav>
 
-  <div class="add-form">
-    <h3>Add new item</h3>
-    <div class="grid2">
-      <select id="newCategory">
-        <option value="appetizers">Shareable / Appetizers</option>
-        <option value="handhelds">Handhelds</option>
-        <option value="flatbread">Flatbread Pizza</option>
-        <option value="salads">Salads</option>
-        <option value="sweet">Something Sweet</option>
-      </select>
-      <input type="text" id="newName" placeholder="Item name">
-    </div>
-    <textarea id="newDesc" placeholder="Description"></textarea>
-    <div class="grid2">
-      <input type="number" step="0.01" id="newPrice" placeholder="Price (e.g. 12.99)">
-      <input type="text" id="newAddon" placeholder="Add-on note (optional, e.g. Add chicken +$4)">
-    </div>
-    <button onclick="addItem()">Add item</button>
-  </div>
+<img class="hero-photo" src="images/pizza.png" alt="Hot Honey Pepperoni flatbread pizza fresh from the oven">
 
-  <div id="menuTables"></div>
-</div>
+<main id="menuRoot">
+  <div class="loading">Loading menu…</div>
+</main>
+
+<footer>
+  <div class="row"><span class="dot">✉</span><a href="mailto:Salvenkitchen@gmail.com">Salvenkitchen@gmail.com</a></div>
+  <div class="row"><span class="dot">☎</span><a href="tel:6823660121">682-366-0121</a></div>
+  <div class="row"><span class="dot">⚑</span><span>206 N Oak St, Suite 150, Roanoke, TX 76262</span></div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -96,46 +49,60 @@
     salads: "Salads",
     sweet: "Something Sweet"
   };
+
   const CATEGORY_ORDER = ["appetizers", "handhelds", "flatbread", "salads", "sweet"];
 
-  async function checkSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      document.getElementById("loginCard").classList.add("hidden");
-      document.getElementById("adminPanel").classList.remove("hidden");
-      loadItems();
-    }
+  // Gallery/feature photos stay static per category (not tied to individual items)
+  const CATEGORY_MEDIA = {
+    appetizers: `<div class="gallery">
+      <img src="images/Fruits.png" alt="Charcuterie and cheese board">
+      <img src="images/Cauliflower.png" alt="Buffalo cauliflower bites">
+      <img src="images/Tacos.png" alt="Chicken street tacos">
+    </div>`,
+    handhelds: `<div class="gallery two">
+      <img src="images/Burger.png" alt="Texas Philly cheesesteak sandwich">
+      <img src="images/Sandwich.png" alt="Hot honey grilled cheese sandwich">
+    </div>`,
+    flatbread: "",
+    salads: `<img class="feature-photo" src="images/Salad.png" alt="Pear and goat cheese salad">`,
+    sweet: `<img class="feature-photo" src="images/Churos.jpeg" alt="Caramel chocolate churros">`
+  };
+
+  const CATEGORY_NOTE = {
+    handhelds: "Add french fries for $2.50"
+  };
+
+  function money(n) {
+    return "$" + Number(n).toFixed(2);
   }
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const errBox = document.getElementById("loginError");
-    errBox.classList.add("hidden");
-
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      errBox.textContent = error.message;
-      errBox.classList.remove("hidden");
-      return;
-    }
-    checkSession();
+  function renderItem(item) {
+    const addon = item.addon_note
+      ? `<div class="addon">${item.addon_note}</div>`
+      : "";
+    return `
+      <div class="item">
+        <div class="item-top">
+          <span class="item-name">${item.name}</span>
+          <span class="leader"></span>
+          <span class="price">${money(item.price)}</span>
+        </div>
+        ${item.description ? `<div class="desc">${item.description}</div>` : ""}
+        ${addon}
+      </div>`;
   }
 
-  async function logout() {
-    await sb.auth.signOut();
-    location.reload();
-  }
-
-  async function loadItems() {
-    const { data, error } = await supabase
+  async function loadMenu() {
+    const root = document.getElementById("menuRoot");
+    const { data, error } = await sb
       .from("menu_items")
       .select("*")
       .order("category")
       .order("sort_order");
 
     if (error) {
-      alert("Error loading items: " + error.message);
+      root.innerHTML = `<div class="loading">Couldn't load the menu right now. Please refresh.</div>`;
+      console.error(error);
       return;
     }
 
@@ -147,95 +114,45 @@
 
     let html = "";
     for (const cat of CATEGORY_ORDER) {
-      if (!grouped[cat]) continue;
-      html += `<div class="cat-section"><h2>${CATEGORY_LABELS[cat]}</h2>
-        <table>
-          <tr><th>Name</th><th>Description</th><th>Price</th><th>Add-on</th><th>Actions</th></tr>
-          ${grouped[cat].map(rowHtml).join("")}
-        </table>
-      </div>`;
-    }
-    document.getElementById("menuTables").innerHTML = html;
-  }
-
-  function rowHtml(item) {
-    return `
-      <tr id="row-${item.id}">
-        <td><input value="${escapeAttr(item.name)}" id="name-${item.id}"></td>
-        <td><textarea id="desc-${item.id}">${escapeHtml(item.description || "")}</textarea></td>
-        <td><input type="number" step="0.01" style="width:80px" value="${item.price}" id="price-${item.id}"></td>
-        <td><input value="${escapeAttr(item.addon_note || "")}" id="addon-${item.id}"></td>
-        <td class="actions">
-          <button onclick="saveItem(${item.id})">Save</button>
-          <button class="danger" onclick="deleteItem(${item.id})">Delete</button>
-        </td>
-      </tr>`;
-  }
-
-  function escapeHtml(str) {
-    return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-  function escapeAttr(str) {
-    return str.replace(/"/g, "&quot;");
-  }
-
-  async function saveItem(id) {
-    const name = document.getElementById(`name-${id}`).value.trim();
-    const description = document.getElementById(`desc-${id}`).value.trim();
-    const price = parseFloat(document.getElementById(`price-${id}`).value);
-    const addon_note = document.getElementById(`addon-${id}`).value.trim() || null;
-
-    const { error } = await supabase
-      .from("menu_items")
-      .update({ name, description, price, addon_note })
-      .eq("id", id);
-
-    if (error) {
-      alert("Error saving: " + error.message);
-    } else {
-      alert("Saved!");
-    }
-  }
-
-  async function deleteItem(id) {
-    if (!confirm("Delete this item? This can't be undone.")) return;
-    const { error } = await sb.from("menu_items").delete().eq("id", id);
-    if (error) {
-      alert("Error deleting: " + error.message);
-    } else {
-      loadItems();
-    }
-  }
-
-  async function addItem() {
-    const category = document.getElementById("newCategory").value;
-    const name = document.getElementById("newName").value.trim();
-    const description = document.getElementById("newDesc").value.trim();
-    const price = parseFloat(document.getElementById("newPrice").value);
-    const addon_note = document.getElementById("newAddon").value.trim() || null;
-
-    if (!name || isNaN(price)) {
-      alert("Please enter at least a name and price.");
-      return;
+      if (!grouped[cat] || grouped[cat].length === 0) continue;
+      html += `
+        <section class="category" id="${cat}">
+          <div class="cat-head"><h2>${CATEGORY_LABELS[cat]}</h2></div>
+          ${CATEGORY_NOTE[cat] ? `<p class="cat-note">${CATEGORY_NOTE[cat]}</p>` : ""}
+          <hr class="rule">
+          ${CATEGORY_MEDIA[cat] || ""}
+          ${grouped[cat].map(renderItem).join("")}
+        </section>`;
     }
 
-    const { error } = await supabase
-      .from("menu_items")
-      .insert([{ category, name, description, price, addon_note, sort_order: 999 }]);
-
-    if (error) {
-      alert("Error adding item: " + error.message);
-      return;
-    }
-
-    document.getElementById("newName").value = "";
-    document.getElementById("newDesc").value = "";
-    document.getElementById("newPrice").value = "";
-    document.getElementById("newAddon").value = "";
-    loadItems();
+    root.innerHTML = html;
+    setupScrollSpy();
   }
 
-  checkSession();
+  function setupScrollSpy() {
+    const links = document.querySelectorAll('nav.categories a');
+    const sections = document.querySelectorAll('section.category');
+    const nav = document.getElementById('catNav');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector('nav.categories a[href="#' + entry.target.id + '"]');
+          if (active) {
+            active.classList.add('active');
+            const navRect = nav.getBoundingClientRect();
+            const linkRect = active.getBoundingClientRect();
+            nav.scrollLeft += (linkRect.left - navRect.left) - 16;
+          }
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+
+    sections.forEach(s => observer.observe(s));
+  }
+
+  loadMenu();
 </script>
 
 </body>
