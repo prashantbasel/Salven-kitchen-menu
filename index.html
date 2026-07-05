@@ -366,7 +366,7 @@
                 .single();
 
             if (orderError) {
-                errBox.textContent = "Something went wrong placing your order. Please try again.";
+                errBox.textContent = "Order failed: " + (orderError.message || "unknown error") + ". Please try again or call us.";
                 errBox.classList.remove("hidden");
                 placeBtn.disabled = false;
                 placeBtn.textContent = "Place Order";
