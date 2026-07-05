@@ -431,7 +431,7 @@
       <div class="order-card">
         <div class="order-top">
           <div>
-            <div class="order-id">Order #${order.id} · ${timeAgo(order.created_at)}</div>
+            <div class="order-id">Order #${order.id.slice(0, 8).toUpperCase()} · ${timeAgo(order.created_at)}</div>
             <div class="order-name">${order.customer_name}</div>
             <div class="order-meta">${order.phone} · ${fulfillmentLabel}</div>
           </div>
@@ -453,7 +453,7 @@
             <option value="completed" ${order.status === "completed" ? "selected" : ""}>Completed</option>
             <option value="cancelled" ${order.status === "cancelled" ? "selected" : ""}>Cancelled</option>
           </select>
-          <button onclick="updateStatus(${order.id})">Update</button>
+          <button onclick="updateStatus('${order.id}')">Update</button>
         </div>
       </div>`;
         }
@@ -478,7 +478,7 @@
                 showToast("Error updating status: " + error.message, "error");
                 return;
             }
-            showToast("Order #" + id + " marked " + newStatus);
+            showToast("Order #" + id.slice(0, 8).toUpperCase() + " marked " + newStatus);
             loadOrders();
         }
 

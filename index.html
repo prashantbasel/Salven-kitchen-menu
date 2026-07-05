@@ -350,9 +350,12 @@
             placeBtn.disabled = true;
             placeBtn.textContent = "Placing order…";
 
-            const { data: orderData, error: orderError } = await sb
+            const newOrderId = crypto.randomUUID();
+
+            const { error: orderError } = await sb
                 .from("orders")
                 .insert([{
+                    id: newOrderId,
                     customer_name: name,
                     phone: phone,
                     fulfillment: fulfillment,
@@ -361,9 +364,7 @@
                     notes: notes || null,
                     status: "new",
                     total: cartTotal()
-                }])
-                .select()
-                .single();
+                }]);
 
             if (orderError) {
                 errBox.textContent = "Order failed: " + (orderError.message || "unknown error") + ". Please try again or call us.";
@@ -376,7 +377,7 @@
             }
 
             const itemRows = cart.map(c => ({
-                order_id: orderData.id,
+                order_id: newOrderId,
                 name: c.name,
                 price: c.price,
                 quantity: c.qty
@@ -399,7 +400,7 @@
             updateCartBadge();
             document.getElementById("checkoutView").classList.add("hidden");
             document.getElementById("confirmView").classList.remove("hidden");
-            document.getElementById("confirmOrderNumber").textContent = "#" + orderData.id;
+            document.getElementById("confirmOrderNumber").textContent = "#" + newOrderId.slice(0, 8).toUpperCase();
             document.getElementById("custName").value = "";
             document.getElementById("custPhone").value = "";
             document.getElementById("custAddress").value = "";
