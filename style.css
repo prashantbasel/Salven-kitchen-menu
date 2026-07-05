@@ -308,6 +308,32 @@ footer .dot {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
+.my-orders-fab {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 50;
+  background: var(--navy-deep);
+  color: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.badge-inline {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--orange-bright);
+  color: var(--navy-deep);
+}
+
 .hidden {
   display: none !important;
 }

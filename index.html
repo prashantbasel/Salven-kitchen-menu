@@ -45,6 +45,10 @@
         🛒 <span id="cartCount">0</span>
     </button>
 
+    <button id="myOrdersButton" class="my-orders-fab" onclick="openMyOrders()">
+        📋 My Orders
+    </button>
+
     <div id="cartOverlay" class="overlay hidden" onclick="closeCartIfBackdrop(event)">
         <div class="sheet">
             <div class="sheet-head">
@@ -95,7 +99,18 @@
                 <p class="confirm-text">Order <span id="confirmOrderNumber"></span> is in. We'll have it ready soon.
                     Thanks for choosing The Salven Kitchen.</p>
                 <button onclick="closeCart()">Done</button>
+                <button class="secondary-btn" onclick="openMyOrders()">View / cancel my orders</button>
             </div>
+        </div>
+    </div>
+
+    <div id="myOrdersOverlay" class="overlay hidden" onclick="closeMyOrdersIfBackdrop(event)">
+        <div class="sheet">
+            <div class="sheet-head">
+                <h3>My Orders</h3>
+                <button class="close-btn" onclick="closeMyOrders()">✕</button>
+            </div>
+            <div id="myOrdersList"></div>
         </div>
     </div>
 
@@ -407,6 +422,87 @@
             document.getElementById("custTable").value = "";
             document.getElementById("custNotes").value = "";
             showToast("Order placed! We've got it.", "success");
+            saveOrderLocally(newOrderId);
+        }
+
+        // ---------- My Orders (local tracking + cancel) ----------
+
+        function getLocalOrders() {
+            try {
+                return JSON.parse(localStorage.getItem("salvenOrders") || "[]");
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveOrderLocally(id) {
+            const orders = getLocalOrders();
+            orders.unshift({ id, placedAt: Date.now() });
+            localStorage.setItem("salvenOrders", JSON.stringify(orders.slice(0, 20)));
+        }
+
+        async function openMyOrders() {
+            document.getElementById("myOrdersOverlay").classList.remove("hidden");
+            const localOrders = getLocalOrders();
+            const listEl = document.getElementById("myOrdersList");
+
+            if (localOrders.length === 0) {
+                listEl.innerHTML = `<p class="empty-cart">No orders placed from this device yet.</p>`;
+                return;
+            }
+
+            listEl.innerHTML = `<p class="empty-cart">Loading…</p>`;
+
+            const ids = localOrders.map(o => o.id);
+            const { data, error } = await sb
+                .from("orders")
+                .select("*")
+                .in("id", ids);
+
+            if (error) {
+                listEl.innerHTML = `<p class="empty-cart">Couldn't load your orders right now.</p>`;
+                return;
+            }
+
+            const byId = {};
+            data.forEach(o => byId[o.id] = o);
+
+            listEl.innerHTML = localOrders.map(local => {
+                const order = byId[local.id];
+                if (!order) return "";
+                const canCancel = order.status === "new";
+                return `
+        <div class="cart-line" style="flex-direction:column;align-items:flex-start;gap:6px;">
+          <div style="display:flex;justify-content:space-between;width:100%;">
+            <strong>#${order.id.slice(0, 8).toUpperCase()}</strong>
+            <span class="badge-inline">${order.status}</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);">${money(order.total)} · ${order.fulfillment}</div>
+          ${canCancel
+                        ? `<button class="secondary-btn" style="margin-top:4px;" onclick="cancelMyOrder('${order.id}')">Cancel this order</button>`
+                        : `<div style="font-size:11px;color:var(--muted);font-style:italic;">Already being handled — call us at 682-366-0121 for changes</div>`
+                    }
+        </div>`;
+            }).join("");
+        }
+
+        async function cancelMyOrder(id) {
+            if (!confirm("Cancel this order?")) return;
+            const { error } = await sb.from("orders").update({ status: "cancelled" }).eq("id", id);
+            if (error) {
+                showToast("Couldn't cancel — it may already be in progress", "error");
+                return;
+            }
+            showToast("Order cancelled");
+            openMyOrders();
+        }
+
+        function closeMyOrders() {
+            document.getElementById("myOrdersOverlay").classList.add("hidden");
+        }
+
+        function closeMyOrdersIfBackdrop(e) {
+            if (e.target.id === "myOrdersOverlay") closeMyOrders();
         }
 
         // ---------- Toast notifications ----------
