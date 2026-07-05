@@ -200,3 +200,10 @@ footer .dot{color:var(--orange);}
 @media (min-width:640px){
   h1.logo{font-size:68px;}
 }
+
+.loading{
+  text-align:center;
+  padding:60px 20px;
+  color:var(--muted);
+  font-size:14px;
+}
