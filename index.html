@@ -36,11 +36,65 @@
   <div class="row"><span class="dot">⚑</span><span>206 N Oak St, Suite 150, Roanoke, TX 76262</span></div>
 </footer>
 
+<button id="cartButton" class="cart-fab" onclick="openCart()">
+  🛒 <span id="cartCount">0</span>
+</button>
+
+<div id="cartOverlay" class="overlay hidden" onclick="closeCartIfBackdrop(event)">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h3>Your Order</h3>
+      <button class="close-btn" onclick="closeCart()">✕</button>
+    </div>
+
+    <div id="cartView">
+      <div id="cartItems"></div>
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button id="checkoutBtn" onclick="showCheckoutForm()">Checkout</button>
+    </div>
+
+    <div id="checkoutView" class="hidden">
+      <div id="checkoutError" class="form-error hidden"></div>
+      <input type="text" id="custName" placeholder="Your name">
+      <input type="tel" id="custPhone" placeholder="Phone number">
+
+      <div class="fulfillment-toggle">
+        <button type="button" class="ff-btn active" id="ffPickup" onclick="setFulfillment('pickup')">Pickup</button>
+        <button type="button" class="ff-btn" id="ffDelivery" onclick="setFulfillment('delivery')">Delivery</button>
+      </div>
+
+      <input type="text" id="custAddress" placeholder="Delivery address" class="hidden">
+      <textarea id="custNotes" placeholder="Notes (optional — allergies, special requests)"></textarea>
+
+      <div class="cart-total-row">
+        <span>Total</span>
+        <span id="checkoutTotal">$0.00</span>
+      </div>
+
+      <button id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+      <button class="secondary-btn" onclick="showCartView()">Back to cart</button>
+    </div>
+
+    <div id="confirmView" class="hidden">
+      <div class="confirm-icon">✓</div>
+      <h3>Order received!</h3>
+      <p class="confirm-text">We've got your order and will have it ready soon. Thanks for choosing The Salven Kitchen.</p>
+      <button onclick="closeCart()">Done</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let cart = [];
+  let fulfillment = "pickup";
 
   const CATEGORY_LABELS = {
     appetizers: "Shareable / Appetizers",
@@ -89,8 +143,11 @@
         </div>
         ${item.description ? `<div class="desc">${item.description}</div>` : ""}
         ${addon}
+        <button class="add-btn" onclick="addToCart(${item.id})">Add to order</button>
       </div>`;
   }
+
+  let currentItems = [];
 
   async function loadMenu() {
     const root = document.getElementById("menuRoot");
@@ -105,6 +162,8 @@
       console.error(error);
       return;
     }
+
+    currentItems = data;
 
     const grouped = {};
     for (const item of data) {
@@ -153,6 +212,172 @@
   }
 
   loadMenu();
+
+  // ---------- Cart logic ----------
+
+  function addToCart(id) {
+    const item = currentItems.find(i => i.id === id);
+    if (!item) return;
+    const existing = cart.find(c => c.id === id);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ id: item.id, name: item.name, price: Number(item.price), qty: 1 });
+    }
+    updateCartBadge();
+    renderCart();
+  }
+
+  function changeQty(id, delta) {
+    const line = cart.find(c => c.id === id);
+    if (!line) return;
+    line.qty += delta;
+    if (line.qty <= 0) {
+      cart = cart.filter(c => c.id !== id);
+    }
+    updateCartBadge();
+    renderCart();
+  }
+
+  function cartTotal() {
+    return cart.reduce((sum, c) => sum + c.price * c.qty, 0);
+  }
+
+  function updateCartBadge() {
+    const count = cart.reduce((sum, c) => sum + c.qty, 0);
+    document.getElementById("cartCount").textContent = count;
+  }
+
+  function renderCart() {
+    const container = document.getElementById("cartItems");
+    if (cart.length === 0) {
+      container.innerHTML = `<p class="empty-cart">Your cart is empty. Add items from the menu.</p>`;
+    } else {
+      container.innerHTML = cart.map(c => `
+        <div class="cart-line">
+          <div class="cart-line-name">${c.name}</div>
+          <div class="cart-line-controls">
+            <button onclick="changeQty(${c.id}, -1)">−</button>
+            <span>${c.qty}</span>
+            <button onclick="changeQty(${c.id}, 1)">+</button>
+          </div>
+          <div class="cart-line-price">${money(c.price * c.qty)}</div>
+        </div>
+      `).join("");
+    }
+    const total = money(cartTotal());
+    document.getElementById("cartTotal").textContent = total;
+    document.getElementById("checkoutTotal").textContent = total;
+    document.getElementById("placeOrderBtn").disabled = cart.length === 0;
+  }
+
+  function openCart() {
+    document.getElementById("cartOverlay").classList.remove("hidden");
+    showCartView();
+    renderCart();
+  }
+
+  function closeCart() {
+    document.getElementById("cartOverlay").classList.add("hidden");
+  }
+
+  function closeCartIfBackdrop(e) {
+    if (e.target.id === "cartOverlay") closeCart();
+  }
+
+  function showCartView() {
+    document.getElementById("cartView").classList.remove("hidden");
+    document.getElementById("checkoutView").classList.add("hidden");
+    document.getElementById("confirmView").classList.add("hidden");
+  }
+
+  function showCheckoutForm() {
+    if (cart.length === 0) return;
+    document.getElementById("cartView").classList.add("hidden");
+    document.getElementById("checkoutView").classList.remove("hidden");
+  }
+
+  function setFulfillment(type) {
+    fulfillment = type;
+    document.getElementById("ffPickup").classList.toggle("active", type === "pickup");
+    document.getElementById("ffDelivery").classList.toggle("active", type === "delivery");
+    document.getElementById("custAddress").classList.toggle("hidden", type !== "delivery");
+  }
+
+  async function placeOrder() {
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    const address = document.getElementById("custAddress").value.trim();
+    const notes = document.getElementById("custNotes").value.trim();
+    const errBox = document.getElementById("checkoutError");
+    errBox.classList.add("hidden");
+
+    if (!name || !phone) {
+      errBox.textContent = "Please enter your name and phone number.";
+      errBox.classList.remove("hidden");
+      return;
+    }
+    if (fulfillment === "delivery" && !address) {
+      errBox.textContent = "Please enter a delivery address.";
+      errBox.classList.remove("hidden");
+      return;
+    }
+
+    const placeBtn = document.getElementById("placeOrderBtn");
+    placeBtn.disabled = true;
+    placeBtn.textContent = "Placing order…";
+
+    const { data: orderData, error: orderError } = await sb
+      .from("orders")
+      .insert([{
+        customer_name: name,
+        phone: phone,
+        fulfillment: fulfillment,
+        address: fulfillment === "delivery" ? address : null,
+        notes: notes || null,
+        status: "new",
+        total: cartTotal()
+      }])
+      .select()
+      .single();
+
+    if (orderError) {
+      errBox.textContent = "Something went wrong placing your order. Please try again.";
+      errBox.classList.remove("hidden");
+      placeBtn.disabled = false;
+      placeBtn.textContent = "Place Order";
+      console.error(orderError);
+      return;
+    }
+
+    const itemRows = cart.map(c => ({
+      order_id: orderData.id,
+      name: c.name,
+      price: c.price,
+      quantity: c.qty
+    }));
+
+    const { error: itemsError } = await sb.from("order_items").insert(itemRows);
+
+    placeBtn.disabled = false;
+    placeBtn.textContent = "Place Order";
+
+    if (itemsError) {
+      errBox.textContent = "Order was placed but there was an issue saving items. Please call us to confirm.";
+      errBox.classList.remove("hidden");
+      console.error(itemsError);
+      return;
+    }
+
+    cart = [];
+    updateCartBadge();
+    document.getElementById("checkoutView").classList.add("hidden");
+    document.getElementById("confirmView").classList.remove("hidden");
+    document.getElementById("custName").value = "";
+    document.getElementById("custPhone").value = "";
+    document.getElementById("custAddress").value = "";
+    document.getElementById("custNotes").value = "";
+  }
 </script>
 
 </body>
