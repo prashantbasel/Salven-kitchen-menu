@@ -140,6 +140,23 @@
             margin-bottom: 14px;
         }
 
+        .order-card.is-new {
+            border-color: var(--orange-bright);
+            animation: pulse-glow 1.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(243, 148, 66, 0.55);
+            }
+
+            50% {
+                box-shadow: 0 0 0 9px rgba(243, 148, 66, 0);
+            }
+        }
+
         .order-top {
             display: flex;
             justify-content: space-between;
@@ -390,6 +407,62 @@
 
         let currentFilter = "all";
         let refreshTimer = null;
+        let seenOrderIds = new Set();
+        let hasLoadedOnce = false;
+        let audioCtx = null;
+
+        function unlockAudio() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === "suspended") audioCtx.resume();
+            } catch (e) {
+                console.warn("Audio not available", e);
+            }
+        }
+
+        function playNewOrderSound() {
+            try {
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                [880, 1108].forEach((freq, i) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = "sine";
+                    osc.frequency.value = freq;
+                    const start = now + i * 0.18;
+                    gain.gain.setValueAtTime(0.001, start);
+                    gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+                    osc.start(start);
+                    osc.stop(start + 0.3);
+                });
+            } catch (e) {
+                console.warn("Couldn't play notification sound", e);
+            }
+        }
+
+        async function checkForNewOrders() {
+            const { data, error } = await sb
+                .from("orders")
+                .select("id, created_at")
+                .eq("status", "new");
+
+            if (error || !data) return;
+
+            const freshIds = data.map(o => o.id).filter(id => !seenOrderIds.has(id));
+
+            if (hasLoadedOnce && freshIds.length > 0) {
+                playNewOrderSound();
+                showToast(freshIds.length + " new order" + (freshIds.length > 1 ? "s" : "") + " just came in!");
+            }
+
+            data.forEach(o => seenOrderIds.add(o.id));
+            hasLoadedOnce = true;
+        }
 
         async function checkSession() {
             const { data: { session } } = await sb.auth.getSession();
@@ -414,6 +487,7 @@
                 errBox.classList.remove("hidden");
                 return;
             }
+            unlockAudio();
             checkSession();
         }
 
@@ -460,6 +534,8 @@
         }
 
         async function loadOrders() {
+            await checkForNewOrders();
+
             let query = sb
                 .from("orders")
                 .select("*, order_items(*)")
@@ -517,7 +593,7 @@
             const editFormId = `edit-${order.id}`;
 
             return `
-      <div class="order-card">
+      <div class="order-card ${order.status === 'new' ? 'is-new' : ''}">
         <div class="order-top">
           <div>
             <div class="order-id">Order #${order.id.slice(0, 8).toUpperCase()} · ${timeAgo(order.created_at)}</div>
@@ -697,6 +773,8 @@
             showToast("Order deleted");
             loadOrders();
         }
+
+        document.addEventListener("click", unlockAudio);
 
         checkSession();
     </script>
