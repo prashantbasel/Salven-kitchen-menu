@@ -1,229 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salven Kitchen — Orders</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --navy:#0b1f3a; --navy-deep:#081729; --orange:#e07b2d; --orange-bright:#f39442;
-    --cream:#f4efe6; --line: rgba(244,239,230,0.18); --muted: rgba(244,239,230,0.62);
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--navy);color:var(--cream);font-family:'Archivo',sans-serif;padding:24px 16px 80px;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:24px;}
-  .card{max-width:420px;margin:60px auto;background:var(--navy-deep);border:1px solid var(--line);border-radius:12px;padding:28px;}
-  input, select{
-    width:100%;padding:9px 10px;margin-bottom:10px;border-radius:6px;border:1px solid var(--line);
-    background:var(--navy);color:var(--cream);font-family:inherit;font-size:14px;
-  }
-  button{
-    background:var(--orange-bright);color:var(--navy-deep);border:none;border-radius:6px;
-    padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px;
-  }
-  button.secondary{background:transparent;color:var(--cream);border:1px solid var(--line);}
-  .error{color:#ff8a80;font-size:13px;margin-bottom:10px;}
-  .hidden{display:none;}
-  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-  .nav-links a{color:var(--muted);font-size:13px;margin-right:14px;text-decoration:none;}
-  .nav-links a:hover{color:var(--orange-bright);}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salven Kitchen — Orders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0b1f3a;
+            --navy-deep: #081729;
+            --orange: #e07b2d;
+            --orange-bright: #f39442;
+            --cream: #f4efe6;
+            --line: rgba(244, 239, 230, 0.18);
+            --muted: rgba(244, 239, 230, 0.62);
+        }
 
-  .filters{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
-  .filters button{
-    background:transparent;border:1px solid var(--line);color:var(--muted);
-    font-size:12px;padding:6px 12px;border-radius:999px;
-  }
-  .filters button.active{background:var(--orange-bright);color:var(--navy-deep);border-color:var(--orange-bright);}
+        * {
+            box-sizing: border-box;
+        }
 
-  .order-card{
-    background:var(--navy-deep);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:16px;
-    margin-bottom:14px;
-  }
-  .order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
-  .order-id{font-size:12px;color:var(--muted);}
-  .order-name{font-size:16px;font-weight:800;margin:2px 0 4px;}
-  .order-meta{font-size:12px;color:var(--muted);margin-bottom:2px;}
-  .badge{
-    display:inline-block;
-    padding:3px 10px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:0.03em;
-  }
-  .badge.new{background:#f39442;color:#081729;}
-  .badge.preparing{background:#f1c40f;color:#081729;}
-  .badge.ready{background:#2ecc71;color:#081729;}
-  .badge.completed{background:#3b4a63;color:var(--cream);}
-  .badge.cancelled{background:#c0392b;color:white;}
+        body {
+            margin: 0;
+            background: var(--navy);
+            color: var(--cream);
+            font-family: 'Archivo', sans-serif;
+            padding: 24px 16px 80px;
+        }
 
-  .order-items{margin:12px 0;border-top:1px solid var(--line);padding-top:10px;}
-  .order-item-row{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--cream);}
-  .order-total{font-weight:800;text-align:right;margin-top:6px;color:var(--orange-bright);}
-  .order-notes{font-size:12px;color:var(--muted);font-style:italic;margin-top:8px;}
+        h1 {
+            font-size: 22px;
+            margin: 0 0 4px;
+        }
 
-  .order-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
-  .order-actions select{width:auto;margin-bottom:0;}
-  .empty-state{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px;}
+        .sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
 
-  .toast-container{
-    position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:200;
-    display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
-  }
-  .toast{
-    background:var(--navy-deep);border:1px solid var(--line);color:var(--cream);
-    padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;
-    box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;transform:translateY(-10px);
-    transition:opacity 0.25s ease, transform 0.25s ease;white-space:nowrap;
-  }
-  .toast.show{opacity:1;transform:translateY(0);}
-  .toast.success{border-color:var(--orange-bright);}
-  .toast.error{border-color:#ff8a80;color:#ff8a80;}
-</style>
+        .card {
+            max-width: 420px;
+            margin: 60px auto;
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 28px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 9px 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: var(--navy);
+            color: var(--cream);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        button {
+            background: var(--orange-bright);
+            color: var(--navy-deep);
+            border: none;
+            border-radius: 6px;
+            padding: 9px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid var(--line);
+        }
+
+        .error {
+            color: #ff8a80;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            font-size: 13px;
+            margin-right: 14px;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--orange-bright);
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .filters button {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 999px;
+        }
+
+        .filters button.active {
+            background: var(--orange-bright);
+            color: var(--navy-deep);
+            border-color: var(--orange-bright);
+        }
+
+        .order-card {
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .order-id {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .order-name {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 2px 0 4px;
+        }
+
+        .order-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge.new {
+            background: #f39442;
+            color: #081729;
+        }
+
+        .badge.preparing {
+            background: #f1c40f;
+            color: #081729;
+        }
+
+        .badge.ready {
+            background: #2ecc71;
+            color: #081729;
+        }
+
+        .badge.completed {
+            background: #3b4a63;
+            color: var(--cream);
+        }
+
+        .badge.cancelled {
+            background: #c0392b;
+            color: white;
+        }
+
+        .order-items {
+            margin: 12px 0;
+            border-top: 1px solid var(--line);
+            padding-top: 10px;
+        }
+
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 3px 0;
+            color: var(--cream);
+        }
+
+        .order-total {
+            font-weight: 800;
+            text-align: right;
+            margin-top: 6px;
+            color: var(--orange-bright);
+        }
+
+        .order-notes {
+            font-size: 12px;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .order-actions select {
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 60px 20px;
+            font-size: 14px;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            color: var(--cream);
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-color: var(--orange-bright);
+        }
+
+        .toast.error {
+            border-color: #ff8a80;
+            color: #ff8a80;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="toast-container"></div>
 
-<div id="loginCard" class="card">
-  <h1>Salven Kitchen Orders</h1>
-  <p class="sub">Sign in to view incoming orders</p>
-  <div id="loginError" class="error hidden"></div>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Log in</button>
-</div>
-
-<div id="ordersPanel" class="hidden">
-  <div class="top-bar">
-    <div>
-      <h1>Orders</h1>
-      <p class="sub">Auto-refreshes every 20 seconds</p>
-      <div class="nav-links"><a href="admin.html">Menu editor</a></div>
+    <div id="loginCard" class="card">
+        <h1>Salven Kitchen Orders</h1>
+        <p class="sub">Sign in to view incoming orders</p>
+        <div id="loginError" class="error hidden"></div>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Log in</button>
     </div>
-    <button class="secondary" onclick="logout()">Log out</button>
-  </div>
 
-  <div class="filters" id="statusFilters">
-    <button class="active" data-status="all" onclick="setFilter('all')">All</button>
-    <button data-status="new" onclick="setFilter('new')">New</button>
-    <button data-status="preparing" onclick="setFilter('preparing')">Preparing</button>
-    <button data-status="ready" onclick="setFilter('ready')">Ready</button>
-    <button data-status="completed" onclick="setFilter('completed')">Completed</button>
-    <button data-status="cancelled" onclick="setFilter('cancelled')">Cancelled</button>
-  </div>
+    <div id="ordersPanel" class="hidden">
+        <div class="top-bar">
+            <div>
+                <h1>Orders</h1>
+                <p class="sub">Auto-refreshes every 20 seconds</p>
+                <div class="nav-links"><a href="admin.html">Menu editor</a></div>
+            </div>
+            <button class="secondary" onclick="logout()">Log out</button>
+        </div>
 
-  <div id="ordersList"></div>
-</div>
+        <div class="filters" id="statusFilters">
+            <button class="active" data-status="all" onclick="setFilter('all')">All</button>
+            <button data-status="new" onclick="setFilter('new')">New</button>
+            <button data-status="preparing" onclick="setFilter('preparing')">Preparing</button>
+            <button data-status="ready" onclick="setFilter('ready')">Ready</button>
+            <button data-status="completed" onclick="setFilter('completed')">Completed</button>
+            <button data-status="cancelled" onclick="setFilter('cancelled')">Cancelled</button>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        <div id="ordersList"></div>
+    </div>
 
-  let currentFilter = "all";
-  let refreshTimer = null;
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function checkSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      document.getElementById("loginCard").classList.add("hidden");
-      document.getElementById("ordersPanel").classList.remove("hidden");
-      loadOrders();
-      if (refreshTimer) clearInterval(refreshTimer);
-      refreshTimer = setInterval(loadOrders, 20000);
-    }
-  }
+        let currentFilter = "all";
+        let refreshTimer = null;
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const errBox = document.getElementById("loginError");
-    errBox.classList.add("hidden");
+        async function checkSession() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                document.getElementById("loginCard").classList.add("hidden");
+                document.getElementById("ordersPanel").classList.remove("hidden");
+                loadOrders();
+                if (refreshTimer) clearInterval(refreshTimer);
+                refreshTimer = setInterval(loadOrders, 20000);
+            }
+        }
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      errBox.textContent = error.message;
-      errBox.classList.remove("hidden");
-      return;
-    }
-    checkSession();
-  }
+        async function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const errBox = document.getElementById("loginError");
+            errBox.classList.add("hidden");
 
-  async function logout() {
-    if (refreshTimer) clearInterval(refreshTimer);
-    await sb.auth.signOut();
-    location.reload();
-  }
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) {
+                errBox.textContent = error.message;
+                errBox.classList.remove("hidden");
+                return;
+            }
+            checkSession();
+        }
 
-  function setFilter(status) {
-    currentFilter = status;
-    document.querySelectorAll("#statusFilters button").forEach(b => {
-      b.classList.toggle("active", b.dataset.status === status);
-    });
-    loadOrders();
-  }
+        async function logout() {
+            if (refreshTimer) clearInterval(refreshTimer);
+            await sb.auth.signOut();
+            location.reload();
+        }
 
-  function money(n) {
-    return "$" + Number(n).toFixed(2);
-  }
+        function setFilter(status) {
+            currentFilter = status;
+            document.querySelectorAll("#statusFilters button").forEach(b => {
+                b.classList.toggle("active", b.dataset.status === status);
+            });
+            loadOrders();
+        }
 
-  function timeAgo(dateStr) {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return "just now";
-    if (diff < 3600) return Math.floor(diff / 60) + "m ago";
-    if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
-    return Math.floor(diff / 86400) + "d ago";
-  }
+        function money(n) {
+            return "$" + Number(n).toFixed(2);
+        }
 
-  async function loadOrders() {
-    let query = sb
-      .from("orders")
-      .select("*, order_items(*)")
-      .order("created_at", { ascending: false });
+        function timeAgo(dateStr) {
+            const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+            if (diff < 60) return "just now";
+            if (diff < 3600) return Math.floor(diff / 60) + "m ago";
+            if (diff < 86400) return Math.floor(diff / 3600) + "h ago";
+            return Math.floor(diff / 86400) + "d ago";
+        }
 
-    if (currentFilter !== "all") {
-      query = query.eq("status", currentFilter);
-    }
+        async function loadOrders() {
+            let query = sb
+                .from("orders")
+                .select("*, order_items(*)")
+                .order("created_at", { ascending: false });
 
-    const { data, error } = await query;
+            if (currentFilter !== "all") {
+                query = query.eq("status", currentFilter);
+            }
 
-    if (error) {
-      document.getElementById("ordersList").innerHTML = `<p class="empty-state">Error loading orders.</p>`;
-      console.error(error);
-      return;
-    }
+            const { data, error } = await query;
 
-    if (!data || data.length === 0) {
-      document.getElementById("ordersList").innerHTML = `<p class="empty-state">No orders here yet.</p>`;
-      return;
-    }
+            if (error) {
+                document.getElementById("ordersList").innerHTML = `<p class="empty-state">Error loading orders.</p>`;
+                console.error(error);
+                return;
+            }
 
-    document.getElementById("ordersList").innerHTML = data.map(orderCard).join("");
-  }
+            if (!data || data.length === 0) {
+                document.getElementById("ordersList").innerHTML = `<p class="empty-state">No orders here yet.</p>`;
+                return;
+            }
 
-  function orderCard(order) {
-    const itemsHtml = (order.order_items || []).map(it => `
+            document.getElementById("ordersList").innerHTML = data.map(orderCard).join("");
+        }
+
+        function orderCard(order) {
+            const itemsHtml = (order.order_items || []).map(it => `
       <div class="order-item-row">
         <span>${it.quantity}× ${it.name}</span>
         <span>${money(it.price * it.quantity)}</span>
       </div>
     `).join("");
 
-    const fulfillmentLabel = order.fulfillment === "delivery"
-      ? `Delivery — ${order.address || "no address given"}`
-      : order.fulfillment === "dine-in"
-      ? `Dine-in — Table ${order.table_number || "?"}`
-      : "Pickup";
+            const fulfillmentLabel = order.fulfillment === "delivery"
+                ? `Delivery — ${order.address || "no address given"}`
+                : order.fulfillment === "dine-in"
+                    ? `Dine-in — Table ${order.table_number || "?"}`
+                    : "Pickup";
 
-    return `
+            return `
       <div class="order-card">
         <div class="order-top">
           <div>
@@ -252,34 +456,35 @@
           <button onclick="updateStatus(${order.id})">Update</button>
         </div>
       </div>`;
-  }
+        }
 
-  function showToast(message, type = "success") {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast " + type;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.classList.add("show"), 10);
-    setTimeout(() => {
-      toast.classList.remove("show");
-      setTimeout(() => toast.remove(), 300);
-    }, 2600);
-  }
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast " + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 10);
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
 
-  async function updateStatus(id) {
-    const newStatus = document.getElementById(`status-${id}`).value;
-    const { error } = await sb.from("orders").update({ status: newStatus }).eq("id", id);
-    if (error) {
-      showToast("Error updating status: " + error.message, "error");
-      return;
-    }
-    showToast("Order #" + id + " marked " + newStatus);
-    loadOrders();
-  }
+        async function updateStatus(id) {
+            const newStatus = document.getElementById(`status-${id}`).value;
+            const { error } = await sb.from("orders").update({ status: newStatus }).eq("id", id);
+            if (error) {
+                showToast("Error updating status: " + error.message, "error");
+                return;
+            }
+            showToast("Order #" + id + " marked " + newStatus);
+            loadOrders();
+        }
 
-  checkSession();
-</script>
+        checkSession();
+    </script>
 
 </body>
+
 </html>

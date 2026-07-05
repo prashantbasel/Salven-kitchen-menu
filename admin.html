@@ -1,184 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salven Kitchen — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --navy:#0b1f3a; --navy-deep:#081729; --orange:#e07b2d; --orange-bright:#f39442;
-    --cream:#f4efe6; --line: rgba(244,239,230,0.18); --muted: rgba(244,239,230,0.62);
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--navy);color:var(--cream);font-family:'Archivo',sans-serif;padding:24px 16px 80px;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .sub{color:var(--muted);font-size:13px;margin-bottom:24px;}
-  .card{max-width:480px;margin:60px auto;background:var(--navy-deep);border:1px solid var(--line);border-radius:12px;padding:28px;}
-  input, select, textarea{
-    width:100%;padding:9px 10px;margin-bottom:10px;border-radius:6px;border:1px solid var(--line);
-    background:var(--navy);color:var(--cream);font-family:inherit;font-size:14px;
-  }
-  textarea{resize:vertical;min-height:50px;}
-  button{
-    background:var(--orange-bright);color:var(--navy-deep);border:none;border-radius:6px;
-    padding:9px 16px;font-weight:700;cursor:pointer;font-size:14px;
-  }
-  button.secondary{background:transparent;color:var(--cream);border:1px solid var(--line);}
-  button.danger{background:#c0392b;color:white;}
-  .error{color:#ff8a80;font-size:13px;margin-bottom:10px;}
-  table{width:100%;border-collapse:collapse;margin-top:10px;}
-  th, td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top;}
-  th{color:var(--orange-bright);text-transform:uppercase;font-size:11px;letter-spacing:0.04em;}
-  .actions{display:flex;gap:6px;flex-wrap:wrap;}
-  .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-  .add-form{background:var(--navy-deep);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:24px;}
-  .add-form h3{margin-top:0;font-size:15px;color:var(--orange-bright);}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .hidden{display:none;}
-  .cat-section{margin-bottom:32px;}
-  .cat-section h2{font-size:16px;color:var(--orange-bright);margin-bottom:6px;}
-  .nav-links a{color:var(--muted);font-size:13px;margin-right:14px;text-decoration:none;}
-  .nav-links a:hover{color:var(--orange-bright);}
 
-  .toast-container{
-    position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:200;
-    display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
-  }
-  .toast{
-    background:var(--navy-deep);border:1px solid var(--line);color:var(--cream);
-    padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;
-    box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;transform:translateY(-10px);
-    transition:opacity 0.25s ease, transform 0.25s ease;white-space:nowrap;
-  }
-  .toast.show{opacity:1;transform:translateY(0);}
-  .toast.success{border-color:var(--orange-bright);}
-  .toast.error{border-color:#ff8a80;color:#ff8a80;}
-</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salven Kitchen — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0b1f3a;
+            --navy-deep: #081729;
+            --orange: #e07b2d;
+            --orange-bright: #f39442;
+            --cream: #f4efe6;
+            --line: rgba(244, 239, 230, 0.18);
+            --muted: rgba(244, 239, 230, 0.62);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--navy);
+            color: var(--cream);
+            font-family: 'Archivo', sans-serif;
+            padding: 24px 16px 80px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin: 0 0 4px;
+        }
+
+        .sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            max-width: 480px;
+            margin: 60px auto;
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 28px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 9px 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--line);
+            background: var(--navy);
+            color: var(--cream);
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        button {
+            background: var(--orange-bright);
+            color: var(--navy-deep);
+            border: none;
+            border-radius: 6px;
+            padding: 9px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid var(--line);
+        }
+
+        button.danger {
+            background: #c0392b;
+            color: white;
+        }
+
+        .error {
+            color: #ff8a80;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px 6px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--orange-bright);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.04em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .add-form {
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .add-form h3 {
+            margin-top: 0;
+            font-size: 15px;
+            color: var(--orange-bright);
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .cat-section {
+            margin-bottom: 32px;
+        }
+
+        .cat-section h2 {
+            font-size: 16px;
+            color: var(--orange-bright);
+            margin-bottom: 6px;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            font-size: 13px;
+            margin-right: 14px;
+            text-decoration: none;
+        }
+
+        .nav-links a:hover {
+            color: var(--orange-bright);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--navy-deep);
+            border: 1px solid var(--line);
+            color: var(--cream);
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-color: var(--orange-bright);
+        }
+
+        .toast.error {
+            border-color: #ff8a80;
+            color: #ff8a80;
+        }
+    </style>
 </head>
+
 <body>
 
-<div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="toast-container"></div>
 
-<div id="loginCard" class="card">
-  <h1>Salven Kitchen Admin</h1>
-  <p class="sub">Sign in to manage your menu</p>
-  <div id="loginError" class="error hidden"></div>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Log in</button>
-</div>
-
-<div id="adminPanel" class="hidden">
-  <div class="top-bar">
-    <div>
-      <h1>Menu Admin</h1>
-      <p class="sub">Changes appear on the live site instantly</p>
-      <div class="nav-links"><a href="orders.html">View orders</a></div>
+    <div id="loginCard" class="card">
+        <h1>Salven Kitchen Admin</h1>
+        <p class="sub">Sign in to manage your menu</p>
+        <div id="loginError" class="error hidden"></div>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Log in</button>
     </div>
-    <button class="secondary" onclick="logout()">Log out</button>
-  </div>
 
-  <div class="add-form">
-    <h3>Add new item</h3>
-    <div class="grid2">
-      <select id="newCategory">
-        <option value="appetizers">Shareable / Appetizers</option>
-        <option value="handhelds">Handhelds</option>
-        <option value="flatbread">Flatbread Pizza</option>
-        <option value="salads">Salads</option>
-        <option value="sweet">Something Sweet</option>
-      </select>
-      <input type="text" id="newName" placeholder="Item name">
+    <div id="adminPanel" class="hidden">
+        <div class="top-bar">
+            <div>
+                <h1>Menu Admin</h1>
+                <p class="sub">Changes appear on the live site instantly</p>
+                <div class="nav-links"><a href="orders.html">View orders</a></div>
+            </div>
+            <button class="secondary" onclick="logout()">Log out</button>
+        </div>
+
+        <div class="add-form">
+            <h3>Add new item</h3>
+            <div class="grid2">
+                <select id="newCategory">
+                    <option value="appetizers">Shareable / Appetizers</option>
+                    <option value="handhelds">Handhelds</option>
+                    <option value="flatbread">Flatbread Pizza</option>
+                    <option value="salads">Salads</option>
+                    <option value="sweet">Something Sweet</option>
+                </select>
+                <input type="text" id="newName" placeholder="Item name">
+            </div>
+            <textarea id="newDesc" placeholder="Description"></textarea>
+            <div class="grid2">
+                <input type="number" step="0.01" id="newPrice" placeholder="Price (e.g. 12.99)">
+                <input type="text" id="newAddon" placeholder="Add-on note (optional, e.g. Add chicken +$4)">
+            </div>
+            <button onclick="addItem()">Add item</button>
+        </div>
+
+        <div id="menuTables"></div>
     </div>
-    <textarea id="newDesc" placeholder="Description"></textarea>
-    <div class="grid2">
-      <input type="number" step="0.01" id="newPrice" placeholder="Price (e.g. 12.99)">
-      <input type="text" id="newAddon" placeholder="Add-on note (optional, e.g. Add chicken +$4)">
-    </div>
-    <button onclick="addItem()">Add item</button>
-  </div>
 
-  <div id="menuTables"></div>
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://srtznkhzrauvgdgxlmfs.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydHpua2h6cmF1dmdkZ3hsbWZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyMTczMTMsImV4cCI6MjA5ODc5MzMxM30.bIVsPdPAoSqIBxih3OW31JHbu3mKzZ2iFGwqRTl6DQg";
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const CATEGORY_LABELS = {
+            appetizers: "Shareable / Appetizers",
+            handhelds: "Handhelds",
+            flatbread: "Flatbread Pizza",
+            salads: "Salads",
+            sweet: "Something Sweet"
+        };
+        const CATEGORY_ORDER = ["appetizers", "handhelds", "flatbread", "salads", "sweet"];
 
-  const CATEGORY_LABELS = {
-    appetizers: "Shareable / Appetizers",
-    handhelds: "Handhelds",
-    flatbread: "Flatbread Pizza",
-    salads: "Salads",
-    sweet: "Something Sweet"
-  };
-  const CATEGORY_ORDER = ["appetizers", "handhelds", "flatbread", "salads", "sweet"];
+        async function checkSession() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                document.getElementById("loginCard").classList.add("hidden");
+                document.getElementById("adminPanel").classList.remove("hidden");
+                loadItems();
+            }
+        }
 
-  async function checkSession() {
-    const { data: { session } } = await sb.auth.getSession();
-    if (session) {
-      document.getElementById("loginCard").classList.add("hidden");
-      document.getElementById("adminPanel").classList.remove("hidden");
-      loadItems();
-    }
-  }
+        async function login() {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const errBox = document.getElementById("loginError");
+            errBox.classList.add("hidden");
 
-  async function login() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-    const errBox = document.getElementById("loginError");
-    errBox.classList.add("hidden");
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) {
+                errBox.textContent = error.message;
+                errBox.classList.remove("hidden");
+                return;
+            }
+            checkSession();
+        }
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      errBox.textContent = error.message;
-      errBox.classList.remove("hidden");
-      return;
-    }
-    checkSession();
-  }
+        async function logout() {
+            await sb.auth.signOut();
+            location.reload();
+        }
 
-  async function logout() {
-    await sb.auth.signOut();
-    location.reload();
-  }
+        async function loadItems() {
+            const { data, error } = await sb
+                .from("menu_items")
+                .select("*")
+                .order("category")
+                .order("sort_order");
 
-  async function loadItems() {
-    const { data, error } = await sb
-      .from("menu_items")
-      .select("*")
-      .order("category")
-      .order("sort_order");
+            if (error) {
+                alert("Error loading items: " + error.message);
+                return;
+            }
 
-    if (error) {
-      alert("Error loading items: " + error.message);
-      return;
-    }
+            const grouped = {};
+            for (const item of data) {
+                if (!grouped[item.category]) grouped[item.category] = [];
+                grouped[item.category].push(item);
+            }
 
-    const grouped = {};
-    for (const item of data) {
-      if (!grouped[item.category]) grouped[item.category] = [];
-      grouped[item.category].push(item);
-    }
-
-    let html = "";
-    for (const cat of CATEGORY_ORDER) {
-      if (!grouped[cat]) continue;
-      html += `<div class="cat-section"><h2>${CATEGORY_LABELS[cat]}</h2>
+            let html = "";
+            for (const cat of CATEGORY_ORDER) {
+                if (!grouped[cat]) continue;
+                html += `<div class="cat-section"><h2>${CATEGORY_LABELS[cat]}</h2>
         <table>
           <tr><th>Name</th><th>Description</th><th>Price</th><th>Add-on</th><th>Actions</th></tr>
           ${grouped[cat].map(rowHtml).join("")}
         </table>
       </div>`;
-    }
-    document.getElementById("menuTables").innerHTML = html;
-  }
+            }
+            document.getElementById("menuTables").innerHTML = html;
+        }
 
-  function rowHtml(item) {
-    return `
+        function rowHtml(item) {
+            return `
       <tr id="row-${item.id}">
         <td><input value="${escapeAttr(item.name)}" id="name-${item.id}"></td>
         <td><textarea id="desc-${item.id}">${escapeHtml(item.description || "")}</textarea></td>
@@ -189,88 +356,89 @@
           <button class="danger" onclick="deleteItem(${item.id})">Delete</button>
         </td>
       </tr>`;
-  }
+        }
 
-  function escapeHtml(str) {
-    return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-  function escapeAttr(str) {
-    return str.replace(/"/g, "&quot;");
-  }
+        function escapeHtml(str) {
+            return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        function escapeAttr(str) {
+            return str.replace(/"/g, "&quot;");
+        }
 
-  function showToast(message, type = "success") {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.className = "toast " + type;
-    toast.textContent = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.classList.add("show"), 10);
-    setTimeout(() => {
-      toast.classList.remove("show");
-      setTimeout(() => toast.remove(), 300);
-    }, 2600);
-  }
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = "toast " + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add("show"), 10);
+            setTimeout(() => {
+                toast.classList.remove("show");
+                setTimeout(() => toast.remove(), 300);
+            }, 2600);
+        }
 
-  async function saveItem(id) {
-    const name = document.getElementById(`name-${id}`).value.trim();
-    const description = document.getElementById(`desc-${id}`).value.trim();
-    const price = parseFloat(document.getElementById(`price-${id}`).value);
-    const addon_note = document.getElementById(`addon-${id}`).value.trim() || null;
+        async function saveItem(id) {
+            const name = document.getElementById(`name-${id}`).value.trim();
+            const description = document.getElementById(`desc-${id}`).value.trim();
+            const price = parseFloat(document.getElementById(`price-${id}`).value);
+            const addon_note = document.getElementById(`addon-${id}`).value.trim() || null;
 
-    const { error } = await sb
-      .from("menu_items")
-      .update({ name, description, price, addon_note })
-      .eq("id", id);
+            const { error } = await sb
+                .from("menu_items")
+                .update({ name, description, price, addon_note })
+                .eq("id", id);
 
-    if (error) {
-      showToast("Error saving: " + error.message, "error");
-    } else {
-      showToast("Saved: " + name);
-    }
-  }
+            if (error) {
+                showToast("Error saving: " + error.message, "error");
+            } else {
+                showToast("Saved: " + name);
+            }
+        }
 
-  async function deleteItem(id) {
-    if (!confirm("Delete this item? This can't be undone.")) return;
-    const { error } = await sb.from("menu_items").delete().eq("id", id);
-    if (error) {
-      showToast("Error deleting: " + error.message, "error");
-    } else {
-      showToast("Item deleted");
-      loadItems();
-    }
-  }
+        async function deleteItem(id) {
+            if (!confirm("Delete this item? This can't be undone.")) return;
+            const { error } = await sb.from("menu_items").delete().eq("id", id);
+            if (error) {
+                showToast("Error deleting: " + error.message, "error");
+            } else {
+                showToast("Item deleted");
+                loadItems();
+            }
+        }
 
-  async function addItem() {
-    const category = document.getElementById("newCategory").value;
-    const name = document.getElementById("newName").value.trim();
-    const description = document.getElementById("newDesc").value.trim();
-    const price = parseFloat(document.getElementById("newPrice").value);
-    const addon_note = document.getElementById("newAddon").value.trim() || null;
+        async function addItem() {
+            const category = document.getElementById("newCategory").value;
+            const name = document.getElementById("newName").value.trim();
+            const description = document.getElementById("newDesc").value.trim();
+            const price = parseFloat(document.getElementById("newPrice").value);
+            const addon_note = document.getElementById("newAddon").value.trim() || null;
 
-    if (!name || isNaN(price)) {
-      showToast("Please enter at least a name and price.", "error");
-      return;
-    }
+            if (!name || isNaN(price)) {
+                showToast("Please enter at least a name and price.", "error");
+                return;
+            }
 
-    const { error } = await sb
-      .from("menu_items")
-      .insert([{ category, name, description, price, addon_note, sort_order: 999 }]);
+            const { error } = await sb
+                .from("menu_items")
+                .insert([{ category, name, description, price, addon_note, sort_order: 999 }]);
 
-    if (error) {
-      showToast("Error adding item: " + error.message, "error");
-      return;
-    }
+            if (error) {
+                showToast("Error adding item: " + error.message, "error");
+                return;
+            }
 
-    document.getElementById("newName").value = "";
-    document.getElementById("newDesc").value = "";
-    document.getElementById("newPrice").value = "";
-    document.getElementById("newAddon").value = "";
-    showToast(name + " added to menu");
-    loadItems();
-  }
+            document.getElementById("newName").value = "";
+            document.getElementById("newDesc").value = "";
+            document.getElementById("newPrice").value = "";
+            document.getElementById("newAddon").value = "";
+            showToast(name + " added to menu");
+            loadItems();
+        }
 
-  checkSession();
-</script>
+        checkSession();
+    </script>
 
 </body>
+
 </html>
