@@ -64,7 +64,10 @@
       <div class="fulfillment-toggle">
         <button type="button" class="ff-btn active" id="ffPickup" onclick="setFulfillment('pickup')">Pickup</button>
         <button type="button" class="ff-btn" id="ffDelivery" onclick="setFulfillment('delivery')">Delivery</button>
+        <button type="button" class="ff-btn" id="ffDineIn" onclick="setFulfillment('dine-in')">Dine-in</button>
       </div>
+
+      <input type="text" id="custTable" placeholder="Table number" class="hidden">
 
       <input type="text" id="custAddress" placeholder="Delivery address" class="hidden">
       <textarea id="custNotes" placeholder="Notes (optional — allergies, special requests)"></textarea>
@@ -81,11 +84,13 @@
     <div id="confirmView" class="hidden">
       <div class="confirm-icon">✓</div>
       <h3>Order received!</h3>
-      <p class="confirm-text">We've got your order and will have it ready soon. Thanks for choosing The Salven Kitchen.</p>
+      <p class="confirm-text">Order <span id="confirmOrderNumber"></span> is in. We'll have it ready soon. Thanks for choosing The Salven Kitchen.</p>
       <button onclick="closeCart()">Done</button>
     </div>
   </div>
 </div>
+
+<div id="toastContainer" class="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -226,6 +231,7 @@
     }
     updateCartBadge();
     renderCart();
+    showToast(item.name + " added to order");
   }
 
   function changeQty(id, delta) {
@@ -301,13 +307,16 @@
     fulfillment = type;
     document.getElementById("ffPickup").classList.toggle("active", type === "pickup");
     document.getElementById("ffDelivery").classList.toggle("active", type === "delivery");
+    document.getElementById("ffDineIn").classList.toggle("active", type === "dine-in");
     document.getElementById("custAddress").classList.toggle("hidden", type !== "delivery");
+    document.getElementById("custTable").classList.toggle("hidden", type !== "dine-in");
   }
 
   async function placeOrder() {
     const name = document.getElementById("custName").value.trim();
     const phone = document.getElementById("custPhone").value.trim();
     const address = document.getElementById("custAddress").value.trim();
+    const tableNumber = document.getElementById("custTable").value.trim();
     const notes = document.getElementById("custNotes").value.trim();
     const errBox = document.getElementById("checkoutError");
     errBox.classList.add("hidden");
@@ -319,6 +328,11 @@
     }
     if (fulfillment === "delivery" && !address) {
       errBox.textContent = "Please enter a delivery address.";
+      errBox.classList.remove("hidden");
+      return;
+    }
+    if (fulfillment === "dine-in" && !tableNumber) {
+      errBox.textContent = "Please enter your table number.";
       errBox.classList.remove("hidden");
       return;
     }
@@ -334,6 +348,7 @@
         phone: phone,
         fulfillment: fulfillment,
         address: fulfillment === "delivery" ? address : null,
+        table_number: fulfillment === "dine-in" ? tableNumber : null,
         notes: notes || null,
         status: "new",
         total: cartTotal()
@@ -346,6 +361,7 @@
       errBox.classList.remove("hidden");
       placeBtn.disabled = false;
       placeBtn.textContent = "Place Order";
+      showToast("Order failed — please try again", "error");
       console.error(orderError);
       return;
     }
@@ -365,6 +381,7 @@
     if (itemsError) {
       errBox.textContent = "Order was placed but there was an issue saving items. Please call us to confirm.";
       errBox.classList.remove("hidden");
+      showToast("Order placed, but item details had an issue", "error");
       console.error(itemsError);
       return;
     }
@@ -373,10 +390,27 @@
     updateCartBadge();
     document.getElementById("checkoutView").classList.add("hidden");
     document.getElementById("confirmView").classList.remove("hidden");
+    document.getElementById("confirmOrderNumber").textContent = "#" + orderData.id;
     document.getElementById("custName").value = "";
     document.getElementById("custPhone").value = "";
     document.getElementById("custAddress").value = "";
+    document.getElementById("custTable").value = "";
     document.getElementById("custNotes").value = "";
+    showToast("Order placed! We've got it.", "success");
+  }
+
+  // ---------- Toast notifications ----------
+  function showToast(message, type = "success") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast " + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add("show"), 10);
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 2600);
   }
 </script>
 

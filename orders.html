@@ -71,9 +71,25 @@
   .order-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
   .order-actions select{width:auto;margin-bottom:0;}
   .empty-state{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px;}
+
+  .toast-container{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:200;
+    display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+  }
+  .toast{
+    background:var(--navy-deep);border:1px solid var(--line);color:var(--cream);
+    padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;
+    box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;transform:translateY(-10px);
+    transition:opacity 0.25s ease, transform 0.25s ease;white-space:nowrap;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.success{border-color:var(--orange-bright);}
+  .toast.error{border-color:#ff8a80;color:#ff8a80;}
 </style>
 </head>
 <body>
+
+<div id="toastContainer" class="toast-container"></div>
 
 <div id="loginCard" class="card">
   <h1>Salven Kitchen Orders</h1>
@@ -203,6 +219,8 @@
 
     const fulfillmentLabel = order.fulfillment === "delivery"
       ? `Delivery — ${order.address || "no address given"}`
+      : order.fulfillment === "dine-in"
+      ? `Dine-in — Table ${order.table_number || "?"}`
       : "Pickup";
 
     return `
@@ -236,13 +254,27 @@
       </div>`;
   }
 
+  function showToast(message, type = "success") {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = "toast " + type;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add("show"), 10);
+    setTimeout(() => {
+      toast.classList.remove("show");
+      setTimeout(() => toast.remove(), 300);
+    }, 2600);
+  }
+
   async function updateStatus(id) {
     const newStatus = document.getElementById(`status-${id}`).value;
     const { error } = await sb.from("orders").update({ status: newStatus }).eq("id", id);
     if (error) {
-      alert("Error updating status: " + error.message);
+      showToast("Error updating status: " + error.message, "error");
       return;
     }
+    showToast("Order #" + id + " marked " + newStatus);
     loadOrders();
   }
 
